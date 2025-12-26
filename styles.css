@@ -26,12 +26,50 @@ body {
   padding: 40px;
 }
 
-h1 {
-  text-align: center;
-  color: #1e293b;
+/* Logo */
+.logo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin-bottom: 40px;
+}
+
+.logo-sparkle {
   font-size: 32px;
-  font-weight: 300;
-  margin-bottom: 32px;
+  animation: sparkle 2s ease-in-out infinite;
+}
+
+@keyframes sparkle {
+  0%, 100% {
+    transform: scale(1) rotate(0deg);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.2) rotate(180deg);
+    opacity: 0.8;
+  }
+}
+
+.logo-text {
+  display: flex;
+  flex-direction: column;
+  line-height: 1;
+}
+
+.logo-main {
+  font-size: 28px;
+  font-weight: 600;
+  color: #1e293b;
+  letter-spacing: -0.5px;
+}
+
+.logo-sub {
+  font-size: 16px;
+  font-weight: 400;
+  color: #64748b;
+  letter-spacing: 2px;
+  text-transform: lowercase;
 }
 
 /* Tab Navigation */
@@ -177,8 +215,16 @@ h1 {
     padding: 24px;
   }
 
-  h1 {
+  .logo-main {
     font-size: 24px;
+  }
+
+  .logo-sub {
+    font-size: 14px;
+  }
+
+  .logo-sparkle {
+    font-size: 28px;
   }
 
   .tab-btn span:last-child {
