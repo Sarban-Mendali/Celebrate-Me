@@ -637,3 +637,215 @@ input[type="file"]::file-selector-button {
   cursor: pointer;
   margin-right: 10px;
 }
+/* Additional styles for new features - Add to your existing styles.css */
+
+/* Color Picker */
+.color-picker {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 4px;
+}
+
+.color-option {
+  width: 45px;
+  height: 45px;
+  border-radius: 10px;
+  border: 3px solid transparent;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+.color-option:hover {
+  transform: scale(1.1);
+}
+
+.color-option.selected {
+  border-color: var(--text-primary);
+  box-shadow: 0 0 0 2px var(--card-bg), 0 0 0 4px var(--text-primary);
+}
+
+/* Voice Recorder */
+.voice-recorder {
+  margin-bottom: 16px;
+}
+
+.record-btn {
+  width: 100%;
+  padding: 12px 16px;
+  border: 2px solid var(--border-color);
+  background: var(--card-bg);
+  color: var(--text-primary);
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.record-btn:hover {
+  background: var(--tab-bg);
+  border-color: var(--text-primary);
+}
+
+.record-btn.recording {
+  background: #fee2e2;
+  border-color: #ef4444;
+  color: #ef4444;
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}
+
+/* Share Buttons Grid */
+.share-buttons-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+  margin-top: 16px;
+}
+
+@media (max-width: 640px) {
+  .share-buttons-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Envelope Animation */
+.envelope-wrapper {
+  margin-bottom: 32px;
+}
+
+.envelope-container {
+  perspective: 1000px;
+  margin: 40px auto;
+  width: 280px;
+  height: 180px;
+  cursor: pointer;
+}
+
+.envelope {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  transform-style: preserve-3d;
+  transition: transform 0.8s;
+}
+
+.envelope.open {
+  transform: rotateX(-180deg);
+}
+
+.envelope-front,
+.envelope-back {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  backface-visibility: hidden;
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 72px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+}
+
+.envelope-front {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.envelope-back {
+  background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+  transform: rotateX(180deg);
+}
+
+/* Countdown Timer */
+.countdown-timer {
+  font-size: 36px;
+  font-weight: 700;
+  color: var(--text-primary);
+  font-family: 'Courier New', monospace;
+  letter-spacing: 2px;
+}
+
+/* History Item */
+.history-item {
+  padding: 14px;
+  border: 2px solid var(--border-color);
+  border-radius: 12px;
+  margin-bottom: 10px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  background: var(--card-bg);
+}
+
+.history-item:hover {
+  background: var(--tab-bg);
+  transform: translateX(4px);
+  border-color: var(--text-primary);
+}
+
+.history-item strong {
+  color: var(--text-primary);
+  font-size: 15px;
+}
+
+.history-item small {
+  color: var(--text-secondary);
+  font-size: 12px;
+}
+
+/* QR Code Styling */
+#qrcode {
+  display: inline-block;
+  padding: 16px;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+#qrcode canvas,
+#qrcode img {
+  border-radius: 8px;
+}
+
+/* Font Families for Message Display */
+.font-default { font-family: inherit; }
+.font-cursive { font-family: 'Brush Script MT', cursive; }
+.font-bold { font-family: 'Arial Black', sans-serif; font-weight: 900; }
+.font-playful { font-family: 'Comic Sans MS', cursive; }
+
+/* Mobile Optimizations */
+@media (max-width: 640px) {
+  .color-option {
+    width: 38px;
+    height: 38px;
+  }
+
+  .envelope-container {
+    width: 220px;
+    height: 140px;
+  }
+
+  .envelope-front,
+  .envelope-back {
+    font-size: 56px;
+  }
+
+  .countdown-timer {
+    font-size: 28px;
+  }
+
+  .record-btn {
+    font-size: 13px;
+    padding: 10px 14px;
+  }
+}
