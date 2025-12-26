@@ -605,3 +605,32 @@ body {
     padding: 24px;
   }
 }
+/* Styling for the media display in the recipient view */
+#media-display-area {
+  margin-top: 15px;
+  margin-bottom: 20px;
+  width: 100%;
+  border-radius: 12px;
+  overflow: hidden;
+  background: var(--tab-bg);
+}
+
+#media-display-area img, 
+#media-display-area video {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-height: 450px;
+  object-fit: contain;
+}
+
+/* Style the file input to look like your other fields */
+input[type="file"]::file-selector-button {
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: none;
+  background: var(--button-bg);
+  color: var(--card-bg);
+  cursor: pointer;
+  margin-right: 10px;
+}
