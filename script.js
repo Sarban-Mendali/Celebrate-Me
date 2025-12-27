@@ -1,121 +1,51 @@
 // Global variables
 let mediaRecorder, audioChunks = [];
-let recordingType = null;
 let generatedLink = '';
+let audioDataStore = {};
 
-// Initialize on page load
-window.addEventListener('DOMContentLoaded', function() {
+// Initialize on load
+document.addEventListener('DOMContentLoaded', () => {
   initTheme();
   initColorPickers();
-  checkURLParams();
+  initTabs();
   generateInitialMessages();
+  checkURLParams();
 });
 
-// ========== COLOR PICKER INITIALIZATION ==========
-function initColorPickers() {
-  const colors = [
-    '#667eea', '#f093fb', '#4facfe', '#43e97b', 
-    '#fa709a', '#ffd89b', '#a8edea', '#fed6e3'
-  ];
-  
-  ['birthday', 'anniversary', 'achievement', 'custom'].forEach(type => {
-    const container = document.getElementById(`${type}-colors`);
-    if (container) {
-      colors.forEach((color, i) => {
-        const div = document.createElement('div');
-        div.className = 'color-option' + (i === 0 ? ' selected' : '');
-        div.style.background = color;
-        div.onclick = () => selectColor(type, div);
-        container.appendChild(div);
-      });
-    }
-  });
-}
-
-function selectColor(type, element) {
-  const container = document.getElementById(`${type}-colors`);
-  container.querySelectorAll('.color-option').forEach(el => el.classList.remove('selected'));
-  element.classList.add('selected');
-}
-
-function getSelectedColor(type) {
-  const selected = document.querySelector(`#${type}-colors .selected`);
-  return selected ? selected.style.background : '#667eea';
-}
-
-// ========== INITIAL MESSAGE GENERATION ==========
-function generateInitialMessages() {
-  const birthdayMessages = [
-    "Happy Birthday! 🎂 May your day be filled with joy, laughter, and unforgettable moments!",
-    "Wishing you the happiest birthday ever! 🎉 May all your dreams come true!",
-    "Happy Birthday! 🎈 Here's to another year of wonderful adventures!"
-  ];
-  
-  const anniversaryMessages = [
-    "Happy Anniversary! 💕 Here's to the beautiful journey you've shared together.",
-    "Congratulations on your special day! ❤️ Your love story is truly inspiring.",
-    "Happy Anniversary! 🌹 May your bond continue to deepen with each passing year."
-  ];
-  
-  const achievementMessages = [
-    "Congratulations! 🎊 Your hard work and dedication have truly paid off!",
-    "Way to go! 🌟 Your success is well-deserved. Keep reaching for the stars!",
-    "Incredible work! 🏆 This is just the beginning of your amazing journey!"
-  ];
-  
-  document.getElementById('birthday-message').value = birthdayMessages[Math.floor(Math.random() * birthdayMessages.length)];
-  document.getElementById('anniversary-message').value = anniversaryMessages[Math.floor(Math.random() * anniversaryMessages.length)];
-  document.getElementById('achievement-message').value = achievementMessages[Math.floor(Math.random() * achievementMessages.length)];
-}
-
-// ========== THEME MANAGEMENT ==========
+// ========== THEME ==========
 function initTheme() {
-  const savedTheme = localStorage.getItem('theme') || 'light';
-  document.documentElement.setAttribute('data-theme', savedTheme);
-  updateThemeButton(savedTheme);
+  const theme = localStorage.getItem('theme') || 'light';
+  document.documentElement.setAttribute('data-theme', theme);
+  updateThemeButton(theme);
 }
 
 function toggleTheme() {
-  const currentTheme = document.documentElement.getAttribute('data-theme');
-  const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-  
+  const current = document.documentElement.getAttribute('data-theme');
+  const newTheme = current === 'dark' ? 'light' : 'dark';
   document.documentElement.setAttribute('data-theme', newTheme);
   localStorage.setItem('theme', newTheme);
   updateThemeButton(newTheme);
 }
 
 function updateThemeButton(theme) {
-  const icon = document.getElementById('theme-icon');
-  const label = document.getElementById('theme-label');
   const menuText = document.getElementById('menu-theme-text');
-  
-  if (theme === 'dark') {
-    icon.textContent = '☀️';
-    label.textContent = 'Light';
-    menuText.textContent = '☀️ Light Mode';
-  } else {
-    icon.textContent = '🌙';
-    label.textContent = 'Dark';
-    menuText.textContent = '🌙 Dark Mode';
-  }
+  menuText.textContent = theme === 'dark' ? '☀️ Light Mode' : '🌙 Dark Mode';
 }
 
-// ========== MENU TOGGLE ==========
+// ========== MENU ==========
 function toggleMenu() {
-  const menu = document.getElementById('dropdown-menu');
-  menu.classList.toggle('active');
+  document.getElementById('dropdown-menu').classList.toggle('active');
 }
 
-document.addEventListener('click', function(event) {
+document.addEventListener('click', (e) => {
   const menu = document.getElementById('dropdown-menu');
-  const menuBtn = document.querySelector('.menu-btn');
-  
-  if (!menu.contains(event.target) && !menuBtn.contains(event.target)) {
+  const btn = document.querySelector('.menu-btn');
+  if (!menu.contains(e.target) && !btn.contains(e.target)) {
     menu.classList.remove('active');
   }
 });
 
-// ========== MODAL FUNCTIONS ==========
+// ========== MODALS ==========
 function showAbout() {
   document.getElementById('about-modal').classList.add('active');
 }
@@ -133,48 +63,67 @@ function closeHistory() {
   document.getElementById('history-modal').classList.remove('active');
 }
 
-// ========== SHARE WEBSITE ==========
-function shareWebsite() {
-  const url = window.location.origin + window.location.pathname;
-  
-  if (navigator.share) {
-    navigator.share({
-      title: 'Wish-yours - Message Generator',
-      text: 'Create beautiful personalized messages for any occasion!',
-      url: url
-    }).catch(() => {
-      copyToClipboardUtil(url);
+// ========== TABS ==========
+function initTabs() {
+  document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const tab = btn.getAttribute('data-tab');
+      switchTab(tab);
     });
-  } else {
-    copyToClipboardUtil(url);
-  }
-}
-
-function copyToClipboardUtil(text) {
-  navigator.clipboard.writeText(text).then(() => {
-    alert('Website link copied to clipboard!');
   });
 }
-
-// ========== TAB SWITCHING ==========
-const tabButtons = document.querySelectorAll('.tab-btn');
-tabButtons.forEach(button => {
-  button.addEventListener('click', function() {
-    const tab = this.getAttribute('data-tab');
-    switchTab(tab);
-  });
-});
 
 function switchTab(tab) {
-  tabButtons.forEach(btn => btn.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
   document.querySelector(`[data-tab="${tab}"]`).classList.add('active');
-
-  document.querySelectorAll('.form-container').forEach(form => {
-    form.classList.remove('active');
-  });
+  
+  document.querySelectorAll('.form-container').forEach(f => f.classList.remove('active'));
   document.getElementById(`${tab}-form`).classList.add('active');
-
+  
   document.getElementById('message-display').style.display = 'none';
+}
+
+// ========== COLOR PICKER ==========
+function initColorPickers() {
+  const colors = ['#667eea', '#f43f5e', '#22c55e', '#f59e0b', '#8b5cf6', '#ec4899', '#14b8a6', '#f97316',];
+  
+  ['birthday', 'anniversary', 'achievement', 'custom'].forEach(type => {
+    const container = document.getElementById(`${type}-colors`);
+    if (container) {
+      container.innerHTML = '';
+      colors.forEach((c, i) => {
+        const d = document.createElement('div');
+        d.className = 'color-option' + (i === 0 ? ' selected' : '');
+        d.style.background = c; 
+        d.onclick = () => selectColor(type, d);
+        container.appendChild(d);
+      });
+    }
+  });
+}
+
+function selectColor(type, el) {
+  document.querySelectorAll(`#${type}-colors .color-option`).forEach(e => e.classList.remove('selected'));
+  el.classList.add('selected');
+}
+
+function getSelectedColor(type) {
+  const s = document.querySelector(`#${type}-colors .color-option.selected`);
+  return s ? s.style.background : '#667eea';
+}
+
+// ========== INITIAL MESSAGES ==========
+function generateInitialMessages() {
+  const msgs = {
+    birthday: ["Happy Birthday! 🎂 May your day be filled with joy!", "Wishing you the happiest birthday! 🎉", "Happy Birthday! 🎈 Another year of amazing memories!"],
+    anniversary: ["Happy Anniversary! 💕 Here's to your beautiful journey!", "Congratulations! ❤️ Your love story inspires!", "Happy Anniversary! 🌹 Forever and always!"],
+    achievement: ["Congratulations! 🎊 Your hard work paid off!", "Way to go! 🌟 You deserve this success!", "Incredible work! 🏆 Just the beginning!"]
+  };
+  
+  Object.keys(msgs).forEach(type => {
+    const el = document.getElementById(`${type}-message`);
+    if (el) el.value = msgs[type][Math.floor(Math.random() * msgs[type].length)];
+  });
 }
 
 // ========== VOICE RECORDING ==========
@@ -188,187 +137,183 @@ async function toggleRecording(type) {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       mediaRecorder = new MediaRecorder(stream);
       audioChunks = [];
-      recordingType = type;
 
       mediaRecorder.ondataavailable = e => audioChunks.push(e.data);
       mediaRecorder.onstop = () => {
         const blob = new Blob(audioChunks, { type: 'audio/wav' });
         const reader = new FileReader();
         reader.onloadend = () => {
-          window[`${type}AudioData`] = reader.result;
+          audioDataStore[type] = reader.result;
           preview.src = URL.createObjectURL(blob);
           preview.style.display = 'block';
         };
         reader.readAsDataURL(blob);
-        
-        stream.getTracks().forEach(track => track.stop());
+        stream.getTracks().forEach(t => t.stop());
       };
 
       mediaRecorder.start();
       btn.classList.add('recording');
       text.textContent = 'Stop Recording';
-    } catch (err) {
-      alert('Microphone access denied. Please allow microphone access to record voice notes.');
+    } catch {
+      alert('Microphone access denied');
     }
   } else {
     mediaRecorder.stop();
     btn.classList.remove('recording');
     text.textContent = 'Record Voice';
-    recordingType = null;
   }
 }
 
-// ========== HELPER FUNCTIONS ==========
-function getBase64(file) {
-  return new Promise((resolve, reject) => {
+// ========== HELPERS ==========
+async function getBase64(file) {
+  return new Promise((resolve) => {
     if (!file) resolve(null);
     const reader = new FileReader();
-    reader.readAsDataURL(file);
     reader.onload = () => resolve(reader.result);
-    reader.onerror = error => reject(error);
+    reader.readAsDataURL(file);
   });
 }
 
 function getFontClass(font) {
-  const fontMap = {
-    'default': 'font-default',
-    'cursive': 'font-cursive',
-    'bold': 'font-bold',
-    'playful': 'font-playful'
-  };
-  return fontMap[font] || 'font-default';
+  return { default: 'font-default', cursive: 'font-cursive', bold: 'font-bold', playful: 'font-playful' }[font] || 'font-default';
 }
 
 function extractYouTubeID(url) {
   if (!url) return null;
-  const match = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&\s]+)/);
-  return match ? match[1] : null;
+  const m = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&\s]+)/);
+  return m ? m[1] : null;
 }
 
-// ========== MESSAGE GENERATION FUNCTIONS ==========
+// ========== MESSAGE GENERATION ==========
 async function generateBirthdayMessage() {
   const name = document.getElementById('birthday-name').value.trim();
-  const age = document.getElementById('birthday-age').value.trim();
   const message = document.getElementById('birthday-message').value.trim();
-  
-  if (!name) { alert('Please enter a name'); return; }
-  if (!message) { alert('Please write a message'); return; }
+  if (!name || !message) { alert('Please fill required fields'); return; }
 
-  const file = document.getElementById('birthday-file').files[0];
-  const mediaData = await getBase64(file);
-  const color = getSelectedColor('birthday');
-  const font = document.getElementById('birthday-font').value;
-  const countdown = document.getElementById('birthday-countdown').value;
-  const youtube = document.getElementById('birthday-youtube').value;
-  const audio = window.birthdayAudioData;
+  const data = {
+    type: 'birthday',
+    name,
+    age: document.getElementById('birthday-age').value,
+    message,
+    color: getSelectedColor('birthday'),
+    font: document.getElementById('birthday-font').value,
+    countdown: document.getElementById('birthday-countdown').value,
+    youtube: document.getElementById('birthday-youtube').value,
+    file: document.getElementById('birthday-file').files[0],
+    audio: audioDataStore.birthday
+  };
 
-  await generateMessage('birthday', { name, age, message, mediaData, color, font, countdown, youtube, audio });
+  await generateMessage(data);
 }
 
 async function generateAnniversaryMessage() {
   const name = document.getElementById('anniversary-name').value.trim();
-  const years = document.getElementById('anniversary-years').value.trim();
   const message = document.getElementById('anniversary-message').value.trim();
-  
-  if (!name) { alert('Please enter a name'); return; }
-  if (!message) { alert('Please write a message'); return; }
+  if (!name || !message) { alert('Please fill required fields'); return; }
 
-  const file = document.getElementById('anniversary-file').files[0];
-  const mediaData = await getBase64(file);
-  const color = getSelectedColor('anniversary');
-  const font = document.getElementById('anniversary-font').value;
-  const countdown = document.getElementById('anniversary-countdown').value;
-  const youtube = document.getElementById('anniversary-youtube').value;
-  const audio = window.anniversaryAudioData;
+  const data = {
+    type: 'anniversary',
+    name,
+    years: document.getElementById('anniversary-years').value,
+    message,
+    color: getSelectedColor('anniversary'),
+    font: document.getElementById('anniversary-font').value,
+    countdown: document.getElementById('anniversary-countdown').value,
+    youtube: document.getElementById('anniversary-youtube').value,
+    file: document.getElementById('anniversary-file').files[0],
+    audio: audioDataStore.anniversary
+  };
 
-  await generateMessage('anniversary', { name, years, message, mediaData, color, font, countdown, youtube, audio });
+  await generateMessage(data);
 }
 
 async function generateAchievementMessage() {
   const name = document.getElementById('achievement-name').value.trim();
   const achievement = document.getElementById('achievement-text').value.trim();
   const message = document.getElementById('achievement-message').value.trim();
-  
-  if (!name || !achievement) { alert('Please enter name and achievement'); return; }
-  if (!message) { alert('Please write a message'); return; }
+  if (!name || !achievement || !message) { alert('Please fill required fields'); return; }
 
-  const file = document.getElementById('achievement-file').files[0];
-  const mediaData = await getBase64(file);
-  const color = getSelectedColor('achievement');
-  const font = document.getElementById('achievement-font').value;
-  const countdown = document.getElementById('achievement-countdown').value;
-  const youtube = document.getElementById('achievement-youtube').value;
-  const audio = window.achievementAudioData;
+  const data = {
+    type: 'achievement',
+    name,
+    achievement,
+    message,
+    color: getSelectedColor('achievement'),
+    font: document.getElementById('achievement-font').value,
+    countdown: document.getElementById('achievement-countdown').value,
+    youtube: document.getElementById('achievement-youtube').value,
+    file: document.getElementById('achievement-file').files[0],
+    audio: audioDataStore.achievement
+  };
 
-  await generateMessage('achievement', { name, achievement, message, mediaData, color, font, countdown, youtube, audio });
+  await generateMessage(data);
 }
 
 async function generateCustomMessage() {
   const occasion = document.getElementById('custom-occasion').value.trim();
-  const name = document.getElementById('custom-name').value.trim();
   const message = document.getElementById('custom-message').value.trim();
-  
-  if (!occasion) { alert('Please enter an occasion'); return; }
-  if (!message) { alert('Please write a message'); return; }
+  if (!occasion || !message) { alert('Please fill required fields'); return; }
 
-  const file = document.getElementById('custom-file').files[0];
-  const mediaData = await getBase64(file);
-  const color = getSelectedColor('custom');
-  const font = document.getElementById('custom-font').value;
-  const youtube = document.getElementById('custom-youtube').value;
-  const audio = window.customAudioData;
+  const data = {
+    type: 'custom',
+    occasion,
+    name: document.getElementById('custom-name').value,
+    message,
+    color: getSelectedColor('custom'),
+    font: document.getElementById('custom-font').value,
+    youtube: document.getElementById('custom-youtube').value,
+    file: document.getElementById('custom-file').files[0],
+    audio: audioDataStore.custom
+  };
 
-  await generateMessage('custom', { occasion, name, message, mediaData, color, font, youtube, audio });
+  await generateMessage(data);
 }
 
-// ========== UNIFIED MESSAGE GENERATION ==========
-async function generateMessage(type, data) {
+async function generateMessage(data) {
+  const mediaData = await getBase64(data.file);
+  const ytId = extractYouTubeID(data.youtube);
+
   const params = new URLSearchParams({
-    type,
+    type: data.type,
     msg: encodeURIComponent(data.message),
     color: encodeURIComponent(data.color),
     font: data.font
   });
 
-  if (data.mediaData) params.append('media', encodeURIComponent(data.mediaData));
+  if (mediaData) params.append('media', encodeURIComponent(mediaData));
   if (data.countdown) params.append('countdown', data.countdown);
-  if (data.youtube) {
-    const ytId = extractYouTubeID(data.youtube);
-    if (ytId) params.append('youtube', ytId);
-  }
+  if (ytId) params.append('youtube', ytId);
   if (data.audio) params.append('audio', encodeURIComponent(data.audio));
 
-  generatedLink = `${window.location.origin}${window.location.pathname}?${params.toString()}`;
-  
-  // Save to history
+  generatedLink = `${location.origin}${location.pathname}?${params}`;
+
   saveToHistory({
-    type,
-    name: data.name || data.occasion || 'Custom',
+    type: data.type,
+    name: data.name || data.occasion || 'Message',
     message: data.message,
     date: new Date().toISOString()
   });
 
-  // Show preview
   showPreview(data.message, data.color, data.font);
 }
 
-// ========== MESSAGE PREVIEW ==========
+// ========== PREVIEW ==========
 function showPreview(message, color, font) {
-  const preview = document.getElementById('preview-box');
-  preview.style.background = color;
-  preview.classList.add(getFontClass(font));
+  const box = document.getElementById('preview-box');
+  box.className = 'message-box ' + getFontClass(font);
+  box.style.background = color;
+  box.style.color = '#fff';
   
   document.getElementById('generated-message').textContent = message;
   document.getElementById('message-display').style.display = 'block';
+  document.getElementById('qr-container').style.display = 'none';
   
-  // Reset buttons
   document.getElementById('share-text').style.display = 'inline';
   document.getElementById('copied-text').style.display = 'none';
-  document.getElementById('qr-container').style.display = 'none';
-  document.getElementById('qr-toggle-text').textContent = 'Show QR';
+  document.getElementById('qr-toggle-text').textContent = '📱 Show QR';
 }
 
-// ========== SHARING FUNCTIONS ==========
+// ========== SHARING ==========
 function copyShareableLink() {
   navigator.clipboard.writeText(generatedLink).then(() => {
     document.getElementById('share-text').style.display = 'none';
@@ -377,46 +322,38 @@ function copyShareableLink() {
       document.getElementById('share-text').style.display = 'inline';
       document.getElementById('copied-text').style.display = 'none';
     }, 2000);
-  }).catch(err => alert('Failed to copy link'));
+  });
 }
 
 function shareWhatsApp() {
-  const text = encodeURIComponent('🎉 I have a surprise for you! ' + generatedLink);
-  window.open(`https://wa.me/?text=${text}`, '_blank');
+  window.open(`https://wa.me/?text=${encodeURIComponent('🎉 Surprise for you! ' + generatedLink)}`, '_blank');
 }
 
 function shareTelegram() {
-  const text = encodeURIComponent('🎉 I have a surprise for you!');
-  window.open(`https://t.me/share/url?url=${encodeURIComponent(generatedLink)}&text=${text}`, '_blank');
+  window.open(`https://t.me/share/url?url=${encodeURIComponent(generatedLink)}&text=${encodeURIComponent('🎉 Surprise for you!')}`, '_blank');
 }
 
 function toggleQR() {
-  const container = document.getElementById('qr-container');
-  const toggleText = document.getElementById('qr-toggle-text');
+  const c = document.getElementById('qr-container');
+  const t = document.getElementById('qr-toggle-text');
   
-  if (container.style.display === 'none') {
+  if (c.style.display === 'none') {
     generateQRCode();
-    container.style.display = 'block';
-    toggleText.textContent = 'Hide QR';
+    c.style.display = 'block';
+    t.textContent = '📱 Hide QR';
   } else {
-    container.style.display = 'none';
-    toggleText.textContent = 'Show QR';
+    c.style.display = 'none';
+    t.textContent = '📱 Show QR';
   }
 }
 
 function generateQRCode() {
   const qr = document.getElementById('qrcode');
   qr.innerHTML = '';
-  new QRCode(qr, {
-    text: generatedLink,
-    width: 200,
-    height: 200,
-    colorDark: '#1e293b',
-    colorLight: '#ffffff'
-  });
+  new QRCode(qr, { text: generatedLink, width: 200, height: 200 });
 }
 
-// ========== HISTORY MANAGEMENT ==========
+// ========== HISTORY ==========
 function saveToHistory(data) {
   let history = JSON.parse(localStorage.getItem('messageHistory') || '[]');
   history.unshift(data);
@@ -428,29 +365,27 @@ function loadHistory() {
   const history = JSON.parse(localStorage.getItem('messageHistory') || '[]');
   const list = document.getElementById('history-list');
   
-  if (history.length === 0) {
-    list.innerHTML = '<p style="color: var(--text-secondary); text-align: center; padding: 20px;">No messages created yet</p>';
+  if (!history.length) {
+    list.innerHTML = '<p style="text-align:center;color:#64748b;padding:20px;">No messages yet</p>';
     return;
   }
   
   list.innerHTML = '';
-  history.forEach((item, i) => {
+  history.forEach(item => {
     const div = document.createElement('div');
     div.className = 'history-item';
     div.innerHTML = `
-      <strong>${item.name} - ${item.type.charAt(0).toUpperCase() + item.type.slice(1)}</strong><br>
+      <strong>${item.name} - ${item.type}</strong><br>
       <small>${new Date(item.date).toLocaleString()}</small><br>
-      <small style="color: var(--text-muted);">${item.message.substring(0, 60)}${item.message.length > 60 ? '...' : ''}</small>
+      <small style="color:#94a3b8;">${item.message.substring(0, 60)}...</small>
     `;
-    div.onclick = () => {
-      alert(`Message: ${item.message}`);
-    };
+    div.onclick = () => alert(item.message);
     list.appendChild(div);
   });
 }
 
 function clearHistory() {
-  if (confirm('Are you sure you want to clear all message history?')) {
+  if (confirm('Clear all history?')) {
     localStorage.removeItem('messageHistory');
     loadHistory();
   }
@@ -458,152 +393,108 @@ function clearHistory() {
 
 // ========== RECIPIENT VIEW ==========
 function checkURLParams() {
-  const urlParams = new URLSearchParams(window.location.search);
-  const type = urlParams.get('type');
-  const msg = urlParams.get('msg');
-
-  if (type && msg) {
-    const media = urlParams.get('media');
-    const color = urlParams.get('color');
-    const font = urlParams.get('font');
-    const countdown = urlParams.get('countdown');
-    const youtube = urlParams.get('youtube');
-    const audio = urlParams.get('audio');
-    
-    showMessageView(type, {
-      message: decodeURIComponent(msg),
-      media: media ? decodeURIComponent(media) : null,
-      color: color ? decodeURIComponent(color) : '#667eea',
-      font: font || 'default',
-      countdown,
-      youtube,
-      audio: audio ? decodeURIComponent(audio) : null
-    });
+  const params = new URLSearchParams(location.search);
+  if (params.get('msg')) {
+    showRecipientView(params);
   }
 }
 
-function showMessageView(type, data) {
+function showRecipientView(params) {
   document.getElementById('main-app').style.display = 'none';
-  document.getElementById('message-view').style.display = 'block';
+  document.getElementById('recipient-view').style.display = 'block';
   
-  // Show envelope first
-  document.getElementById('envelope-wrapper').style.display = 'block';
-  
-  // Store data for opening
-  window.recipientData = { type, ...data };
+  window.recipientData = {
+    type: params.get('type') || 'custom',
+    message: decodeURIComponent(params.get('msg')),
+    color: params.get('color') ? decodeURIComponent(params.get('color')) : '#667eea',
+    font: params.get('font') || 'default',
+    media: params.get('media') ? decodeURIComponent(params.get('media')) : null,
+    countdown: params.get('countdown'),
+    youtube: params.get('youtube'),
+    audio: params.get('audio') ? decodeURIComponent(params.get('audio')) : null
+  };
 }
 
 function openEnvelope() {
   document.getElementById('envelope').classList.add('open');
-  
-  // Trigger confetti
-  confetti({
-    particleCount: 100,
-    spread: 70,
-    origin: { y: 0.6 }
-  });
+  confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
   
   setTimeout(() => {
-    const { type, message, media, color, font, countdown, youtube, audio } = window.recipientData;
-    
+    const d = window.recipientData;
     document.getElementById('envelope-wrapper').style.display = 'none';
     document.getElementById('message-reveal').style.display = 'block';
     
-    // Set emoji and title
-    const emojiMap = { 'birthday': '🎂', 'anniversary': '💕', 'achievement': '🏆', 'custom': '✨' };
-    const titleMap = { 
-      'birthday': 'Happy Birthday! 🎉', 
-      'anniversary': 'Happy Anniversary! 💑', 
-      'achievement': 'Congratulations! 🎊',
-      'custom': 'A Special Message! 💌'
-    };
+    const emojiMap = { birthday: '🎂', anniversary: '💕', achievement: '🏆', custom: '✨' };
+    const titleMap = { birthday: 'Happy Birthday! 🎉', anniversary: 'Happy Anniversary! 💑', achievement: 'Congratulations! 🎊', custom: 'Special Message! 💌' };
     
-    document.getElementById('celebration-emoji').textContent = emojiMap[type] || '🎉';
-    document.getElementById('message-title').textContent = titleMap[type] || 'You\'ve Received a Message!';
+    document.getElementById('celebration-emoji').textContent = emojiMap[d.type] || '🎉';
+    document.getElementById('message-title').textContent = titleMap[d.type] || 'You have Got Mail!';
     
-    // Display message with color and font
-    const content = document.querySelector('.message-content');
-    content.style.background = color;
-    content.classList.add(getFontClass(font));
-    document.getElementById('received-message').textContent = message;
+    const content = document.getElementById('message-content-recipient');
+    content.style.background = d.color;
+    content.className = 'message-content-recipient ' + getFontClass(d.font);
+    document.getElementById('received-message').textContent = d.message;
     
-    // Display media
-    let mediaArea = document.getElementById('media-display-area');
-    if (!mediaArea) {
-      mediaArea = document.createElement('div');
-      mediaArea.id = 'media-display-area';
-      content.insertBefore(mediaArea, content.firstChild);
-    }
-    
-    mediaArea.innerHTML = '';
-    if (media) {
-      if (media.includes("video")) {
-        mediaArea.innerHTML = `<video src="${media}" controls style="width:100%; border-radius:12px; margin-bottom:15px;"></video>`;
+    // Media
+    if (d.media) {
+      const mediaDiv = document.createElement('div');
+      mediaDiv.style.marginBottom = '15px';
+      if (d.media.includes('video')) {
+        mediaDiv.innerHTML = `<video src="${d.media}" controls style="width:100%;border-radius:12px;"></video>`;
       } else {
-        mediaArea.innerHTML = `<img src="${media}" style="width:100%; border-radius:12px; margin-bottom:15px;" alt="Attached media">`;
+        mediaDiv.innerHTML = `<img src="${d.media}" style="width:100%;border-radius:12px;">`;
       }
+      content.insertBefore(mediaDiv, content.firstChild);
     }
     
-    // Countdown timer
-    if (countdown) {
-      const countdownDiv = document.getElementById('countdown-container');
-      countdownDiv.style.display = 'block';
-      startCountdown(countdown);
+    // Countdown
+    if (d.countdown) {
+      document.getElementById('countdown-container').style.display = 'block';
+      startCountdown(d.countdown);
     }
     
-    // YouTube video
-    if (youtube) {
-      const ytContainer = document.getElementById('youtube-container');
-      const ytFrame = document.getElementById('youtube-frame');
-      ytFrame.src = `https://www.youtube.com/embed/${youtube}?autoplay=1`;
-      ytContainer.style.display = 'block';
+    // YouTube
+    if (d.youtube) {
+      document.getElementById('youtube-frame').src = `https://www.youtube.com/embed/${d.youtube}?autoplay=1`;
+      document.getElementById('youtube-container').style.display = 'block';
     }
     
-    // Voice note
-    if (audio) {
-      const audioContainer = document.getElementById('audio-container');
-      const player = document.getElementById('voice-player');
-      player.src = audio;
-      audioContainer.style.display = 'block';
+    // Audio
+    if (d.audio) {
+      document.getElementById('voice-player').src = d.audio;
+      document.getElementById('audio-container').style.display = 'block';
     }
   }, 800);
 }
 
-function startCountdown(targetDate) {
+function startCountdown(target) {
   const display = document.getElementById('countdown-display');
   
   function update() {
-    const now = new Date().getTime();
-    const target = new Date(targetDate).getTime();
-    const diff = target - now;
-    
+    const diff = new Date(target) - new Date();
     if (diff > 0) {
-      const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-      const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-      const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-      const seconds = Math.floor((diff % (1000 * 60)) / 1000);
-      
-      display.textContent = `${days}d ${hours}h ${minutes}m ${seconds}s`;
+      const d = Math.floor(diff / 86400000);
+      const h = Math.floor((diff % 86400000) / 3600000);
+      const m = Math.floor((diff % 3600000) / 60000);
+      const s = Math.floor((diff % 60000) / 1000);
+      display.textContent = `${d}d ${h}h ${m}m ${s}s`;
     } else {
-      display.textContent = '🎉 It\'s time!';
-      clearInterval(window.countdownInterval);
+      display.textContent = '🎉 It\'s Time!';
     }
   }
   
   update();
-  window.countdownInterval = setInterval(update, 1000);
+  setInterval(update, 1000);
 }
 
-// ========== GO HOME ==========
 function goHome() {
-  window.history.pushState({}, document.title, window.location.pathname);
+  history.pushState({}, '', location.pathname);
   document.getElementById('main-app').style.display = 'block';
-  document.getElementById('message-view').style.display = 'none';
+  document.getElementById('recipient-view').style.display = 'none';
   document.getElementById('message-display').style.display = 'none';
   
-  // Reset envelope
   document.getElementById('envelope').classList.remove('open');
-  document.getElementById('envelope-wrapper').style.display = 'none';
+  document.getElementById('envelope-wrapper').style.display = 'block';
   document.getElementById('message-reveal').style.display = 'none';
-  
-  if (window.countdownInterval) clearInterval(window.countdownInterval);}
+}
+

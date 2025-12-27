@@ -3,15 +3,16 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="icon" href="logo.png" type="image/x-icon">
   <title>Wish-yours</title>
-  <link rel="stylesheet" href="styles.css">
-  <!-- Add confetti and QR code libraries -->
+
+  <!-- Required Libraries -->
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <link rel="stylesheet" href="styles.css">
 </head>
+
 <body>
-  <!-- Top Header Bar -->
+  <!-- Header -->
   <header class="header">
     <div class="header-logo">
       <span class="header-sparkle">✨</span>
@@ -20,122 +21,91 @@
         <span class="header-sub">yours...</span>
       </div>
     </div>
-    <button class="menu-btn" onclick="toggleMenu()">
-      <span class="menu-icon">☰</span>
-    </button>
+    <button class="menu-btn" onclick="toggleMenu()">☰</button>
   </header>
 
   <!-- Dropdown Menu -->
   <div class="dropdown-menu" id="dropdown-menu">
-    <button class="menu-item" onclick="goHome(); toggleMenu();">
-      🏠 Home
-    </button>
-    <button class="menu-item" onclick="toggleTheme(); toggleMenu();">
+    <button class="menu-item" onclick="goHome();toggleMenu();">🏠 Home</button>
+    <button class="menu-item" onclick="toggleTheme();toggleMenu();">
       <span id="menu-theme-text">🌙 Dark Mode</span>
     </button>
-    <button class="menu-item" onclick="showHistory(); toggleMenu();">
-      📜 Message History
-    </button>
-    <button class="menu-item" onclick="showAbout(); toggleMenu();">
-      ℹ️ About
-    </button>
-    <button class="menu-item" onclick="shareWebsite(); toggleMenu();">
-      📤 Share Website
-    </button>
+    <button class="menu-item" onclick="showHistory();toggleMenu();">📜 History</button>
+    <button class="menu-item" onclick="showAbout();toggleMenu();">ℹ️ About</button>
   </div>
 
   <div class="container">
-    <!-- Message View (for recipients) -->
-    <div class="message-view" id="message-view" style="display: none;">
+    <!-- Recipient View -->
+    <div class="recipient-view" id="recipient-view" style="display: none;">
       <div class="card">
-        <!-- Envelope Animation Container -->
-        <div class="envelope-wrapper" id="envelope-wrapper" style="display: none;">
+        <!-- Envelope -->
+        <div class="envelope-wrapper" id="envelope-wrapper">
           <div class="envelope-container" onclick="openEnvelope()">
             <div class="envelope" id="envelope">
               <div class="envelope-front">💌</div>
               <div class="envelope-back">🎉</div>
             </div>
           </div>
-          <p style="text-align:center; color: var(--text-secondary); margin-top: 16px; font-size: 14px;">
-            Click the envelope to open your surprise!
+          <p style="text-align:center; color: #64748b; margin-top: 16px;">
+            Click the envelope to open!
           </p>
         </div>
 
-        <!-- Message Content (shown after envelope opens) -->
+        <!-- Message Content -->
         <div id="message-reveal" style="display: none;">
           <div class="celebration-header">
             <span class="celebration-emoji" id="celebration-emoji">🎉</span>
-            <h2 class="message-title" id="message-title">You've Received a Message!</h2>
+            <h2 class="message-title" id="message-title">You've Got a Message!</h2>
           </div>
 
-          <!-- Countdown Timer (if applicable) -->
+          <!-- Countdown -->
           <div id="countdown-container" style="display: none; text-align: center; margin: 20px 0;">
-            <p style="color: var(--text-secondary); margin-bottom: 8px;">Time until celebration:</p>
+            <p style="color: #64748b; font-size: 14px; margin-bottom: 8px;">Time until celebration:</p>
             <div class="countdown-timer" id="countdown-display"></div>
           </div>
 
-          <div class="message-content">
+          <!-- Message Box -->
+          <div class="message-content-recipient" id="message-content-recipient">
             <p id="received-message"></p>
           </div>
 
-          <!-- YouTube Video (if applicable) -->
+          <!-- YouTube -->
           <div id="youtube-container" style="display: none; margin: 20px 0;">
             <iframe id="youtube-frame" width="100%" height="300" frameborder="0" 
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
-              allowfullscreen style="border-radius: 12px;"></iframe>
+              allow="autoplay" allowfullscreen style="border-radius: 12px;"></iframe>
           </div>
 
-          <!-- Voice Note Player (if applicable) -->
+          <!-- Voice Note -->
           <div id="audio-container" style="display: none; margin: 20px 0; text-align: center;">
-            <p style="color: var(--text-secondary); margin-bottom: 8px; font-size: 14px;">🎤 Voice Message:</p>
+            <p style="color: #64748b; margin-bottom: 8px; font-size: 14px;">🎤 Voice Message:</p>
             <audio id="voice-player" controls style="width: 100%; max-width: 400px;"></audio>
           </div>
 
-          <button class="cta-btn" onclick="goHome()">
-            Create Your Own Message
-          </button>
+          <button class="cta-btn" onclick="goHome()">Create Your Own Message</button>
         </div>
       </div>
     </div>
 
-    <!-- Main App (for creating messages) -->
+    <!-- Main App -->
     <div class="main-app" id="main-app">
       <div class="card">
-        <!-- Tab Navigation -->
+        <!-- Tabs -->
         <div class="tab-nav">
-          <button class="tab-btn active" data-tab="birthday">
-            <span class="icon">🎁</span>
-            <span>Birthday</span>
-          </button>
-          <button class="tab-btn" data-tab="anniversary">
-            <span class="icon">❤️</span>
-            <span>Anniversary</span>
-          </button>
-          <button class="tab-btn" data-tab="achievement">
-            <span class="icon">🏆</span>
-            <span>Achievement</span>
-          </button>
-          <button class="tab-btn" data-tab="custom">
-            <span class="icon">✨</span>
-            <span>Custom</span>
-          </button>
+          <button class="tab-btn active" data-tab="birthday">🎁 Birthday</button>
+          <button class="tab-btn" data-tab="anniversary">❤️ Anniversary</button>
+          <button class="tab-btn" data-tab="achievement">🏆 Achievement</button>
+          <button class="tab-btn" data-tab="custom">✨ Custom</button>
         </div>
 
         <!-- Birthday Form -->
         <div class="form-container active" id="birthday-form">
-          <input type="text" id="birthday-name" class="input-field" placeholder="Name">
-          <input type="text" id="birthday-age" class="input-field" placeholder="Age (optional)">
+          <input id="birthday-name" class="input-field" placeholder="Name" />
+          <input id="birthday-age" class="input-field" placeholder="Age (optional)" />
+          <textarea id="birthday-message" class="input-field" placeholder="Your message..." style="min-height: 100px;"></textarea>
           
-          <!-- Message Editor -->
-          <textarea id="birthday-message" class="input-field" placeholder="Edit your message here..." style="min-height: 100px; resize: vertical;"></textarea>
-          
-          <!-- Color Picker -->
-          <div style="margin-bottom: 12px;">
-            <label style="display: block; margin-bottom: 6px; font-size: 14px; color: var(--text-primary); font-weight: 500;">Card Color:</label>
-            <div class="color-picker" id="birthday-colors"></div>
-          </div>
+          <label class="form-label">Card Color:</label>
+          <div class="color-picker" id="birthday-colors"></div>
 
-          <!-- Font Selector -->
           <select id="birthday-font" class="input-field">
             <option value="default">Default Font</option>
             <option value="cursive">Cursive</option>
@@ -143,15 +113,10 @@
             <option value="playful">Playful</option>
           </select>
 
-          <!-- Countdown Date -->
-          <input type="datetime-local" id="birthday-countdown" class="input-field" placeholder="Countdown to...">
+          <input type="datetime-local" id="birthday-countdown" class="input-field" />
+          <input type="file" id="birthday-file" class="input-field" accept="image/*,video/*" />
+          <input type="url" id="birthday-youtube" class="input-field" placeholder="YouTube link (optional)" />
           
-          <input type="file" id="birthday-file" class="input-field" accept="image/*,video/*">
-          
-          <!-- YouTube URL -->
-          <input type="url" id="birthday-youtube" class="input-field" placeholder="YouTube link (optional)">
-          
-          <!-- Voice Recording -->
           <div class="voice-recorder">
             <button type="button" class="record-btn" id="birthday-record-btn" onclick="toggleRecording('birthday')">
               🎤 <span id="birthday-record-text">Record Voice</span>
@@ -159,22 +124,17 @@
             <audio id="birthday-audio-preview" controls style="display: none; width: 100%; margin-top: 8px;"></audio>
           </div>
 
-          <button class="generate-btn" onclick="generateBirthdayMessage()">
-            Generate Birthday Message
-          </button>
+          <button class="generate-btn" onclick="generateBirthdayMessage()">Generate Birthday Message</button>
         </div>
 
         <!-- Anniversary Form -->
         <div class="form-container" id="anniversary-form">
-          <input type="text" id="anniversary-name" class="input-field" placeholder="Name">
-          <input type="text" id="anniversary-years" class="input-field" placeholder="Years (optional)">
+          <input id="anniversary-name" class="input-field" placeholder="Name" />
+          <input id="anniversary-years" class="input-field" placeholder="Years (optional)" />
+          <textarea id="anniversary-message" class="input-field" placeholder="Your message..." style="min-height: 100px;"></textarea>
           
-          <textarea id="anniversary-message" class="input-field" placeholder="Edit your message here..." style="min-height: 100px; resize: vertical;"></textarea>
-          
-          <div style="margin-bottom: 12px;">
-            <label style="display: block; margin-bottom: 6px; font-size: 14px; color: var(--text-primary); font-weight: 500;">Card Color:</label>
-            <div class="color-picker" id="anniversary-colors"></div>
-          </div>
+          <label class="form-label">Card Color:</label>
+          <div class="color-picker" id="anniversary-colors"></div>
 
           <select id="anniversary-font" class="input-field">
             <option value="default">Default Font</option>
@@ -183,9 +143,9 @@
             <option value="playful">Playful</option>
           </select>
 
-          <input type="datetime-local" id="anniversary-countdown" class="input-field">
-          <input type="file" id="anniversary-file" class="input-field" accept="image/*,video/*">
-          <input type="url" id="anniversary-youtube" class="input-field" placeholder="YouTube link (optional)">
+          <input type="datetime-local" id="anniversary-countdown" class="input-field" />
+          <input type="file" id="anniversary-file" class="input-field" accept="image/*,video/*" />
+          <input type="url" id="anniversary-youtube" class="input-field" placeholder="YouTube link (optional)" />
           
           <div class="voice-recorder">
             <button type="button" class="record-btn" id="anniversary-record-btn" onclick="toggleRecording('anniversary')">
@@ -194,22 +154,17 @@
             <audio id="anniversary-audio-preview" controls style="display: none; width: 100%; margin-top: 8px;"></audio>
           </div>
 
-          <button class="generate-btn" onclick="generateAnniversaryMessage()">
-            Generate Anniversary Message
-          </button>
+          <button class="generate-btn" onclick="generateAnniversaryMessage()">Generate Anniversary Message</button>
         </div>
 
         <!-- Achievement Form -->
         <div class="form-container" id="achievement-form">
-          <input type="text" id="achievement-name" class="input-field" placeholder="Name">
-          <input type="text" id="achievement-text" class="input-field" placeholder="Achievement (e.g., graduation, promotion)">
+          <input id="achievement-name" class="input-field" placeholder="Name" />
+          <input id="achievement-text" class="input-field" placeholder="Achievement" />
+          <textarea id="achievement-message" class="input-field" placeholder="Your message..." style="min-height: 100px;"></textarea>
           
-          <textarea id="achievement-message" class="input-field" placeholder="Edit your message here..." style="min-height: 100px; resize: vertical;"></textarea>
-          
-          <div style="margin-bottom: 12px;">
-            <label style="display: block; margin-bottom: 6px; font-size: 14px; color: var(--text-primary); font-weight: 500;">Card Color:</label>
-            <div class="color-picker" id="achievement-colors"></div>
-          </div>
+          <label class="form-label">Card Color:</label>
+          <div class="color-picker" id="achievement-colors"></div>
 
           <select id="achievement-font" class="input-field">
             <option value="default">Default Font</option>
@@ -218,9 +173,9 @@
             <option value="playful">Playful</option>
           </select>
 
-          <input type="datetime-local" id="achievement-countdown" class="input-field">
-          <input type="file" id="achievement-file" class="input-field" accept="image/*,video/*">
-          <input type="url" id="achievement-youtube" class="input-field" placeholder="YouTube link (optional)">
+          <input type="datetime-local" id="achievement-countdown" class="input-field" />
+          <input type="file" id="achievement-file" class="input-field" accept="image/*,video/*" />
+          <input type="url" id="achievement-youtube" class="input-field" placeholder="YouTube link (optional)" />
           
           <div class="voice-recorder">
             <button type="button" class="record-btn" id="achievement-record-btn" onclick="toggleRecording('achievement')">
@@ -229,22 +184,17 @@
             <audio id="achievement-audio-preview" controls style="display: none; width: 100%; margin-top: 8px;"></audio>
           </div>
 
-          <button class="generate-btn" onclick="generateAchievementMessage()">
-            Generate Achievement Message
-          </button>
+          <button class="generate-btn" onclick="generateAchievementMessage()">Generate Achievement Message</button>
         </div>
 
         <!-- Custom Form -->
         <div class="form-container" id="custom-form">
-          <input type="text" id="custom-occasion" class="input-field" placeholder="Occasion (e.g., Good Luck, Thank You)">
-          <input type="text" id="custom-name" class="input-field" placeholder="Name">
+          <input id="custom-occasion" class="input-field" placeholder="Occasion (e.g., Good Luck)" />
+          <input id="custom-name" class="input-field" placeholder="Name (optional)" />
+          <textarea id="custom-message" class="input-field" placeholder="Your message..." style="min-height: 120px;"></textarea>
           
-          <textarea id="custom-message" class="input-field" placeholder="Write your custom message here..." style="min-height: 120px; resize: vertical;"></textarea>
-          
-          <div style="margin-bottom: 12px;">
-            <label style="display: block; margin-bottom: 6px; font-size: 14px; color: var(--text-primary); font-weight: 500;">Card Color:</label>
-            <div class="color-picker" id="custom-colors"></div>
-          </div>
+          <label class="form-label">Card Color:</label>
+          <div class="color-picker" id="custom-colors"></div>
 
           <select id="custom-font" class="input-field">
             <option value="default">Default Font</option>
@@ -253,8 +203,8 @@
             <option value="playful">Playful</option>
           </select>
 
-          <input type="file" id="custom-file" class="input-field" accept="image/*,video/*">
-          <input type="url" id="custom-youtube" class="input-field" placeholder="YouTube link (optional)">
+          <input type="file" id="custom-file" class="input-field" accept="image/*,video/*" />
+          <input type="url" id="custom-youtube" class="input-field" placeholder="YouTube link (optional)" />
           
           <div class="voice-recorder">
             <button type="button" class="record-btn" id="custom-record-btn" onclick="toggleRecording('custom')">
@@ -263,59 +213,35 @@
             <audio id="custom-audio-preview" controls style="display: none; width: 100%; margin-top: 8px;"></audio>
           </div>
 
-          <button class="generate-btn" onclick="generateCustomMessage()">
-            Create Custom Message
-          </button>
+          <button class="generate-btn" onclick="generateCustomMessage()">Create Custom Message</button>
         </div>
 
-        <!-- Message Display -->
-        <div class="message-display" id="message-display" style="display: none;">
+        <!-- Message Preview -->
+        <div class="message-display" id="message-display" style="display:none">
           <div class="message-box" id="preview-box">
             <p id="generated-message"></p>
           </div>
-          
-          <!-- QR Code Container -->
-          <div id="qr-container" style="text-align: center; margin: 16px 0; display: none;">
-            <p style="color: var(--text-secondary); font-size: 14px; margin-bottom: 8px;">📱 Scan QR Code:</p>
+
+          <div id="qr-container" style="display:none;text-align:center; margin: 16px 0;">
+            <p style="color: #64748b; font-size: 14px; margin-bottom: 8px;">📱 Scan QR Code</p>
             <div id="qrcode"></div>
           </div>
 
-          <!-- Share Buttons -->
           <div class="share-buttons-grid">
             <button class="share-btn" onclick="copyShareableLink()">
               <span id="share-text">🔗 Copy Link</span>
               <span id="copied-text" style="display: none;">✓ Copied!</span>
             </button>
-            <button class="share-btn" onclick="shareWhatsApp()">
-              💬 WhatsApp
-            </button>
-            <button class="share-btn" onclick="shareTelegram()">
-              ✈️ Telegram
-            </button>
+            <button class="share-btn" onclick="shareWhatsApp()">💬 WhatsApp</button>
+            <button class="share-btn" onclick="shareTelegram()">✈️ Telegram</button>
             <button class="share-btn" onclick="toggleQR()">
-              📱 <span id="qr-toggle-text">Show QR</span>
+              <span id="qr-toggle-text">📱 Show QR</span>
             </button>
           </div>
         </div>
       </div>
     </div>
   </div>
-
-  <!-- Bottom Navigation Bar -->
-  <nav class="bottom-navbar">
-    <button class="bottom-nav-btn" onclick="goHome()">
-      <span class="nav-icon">🏠</span>
-      <span class="nav-label">Home</span>
-    </button>
-    <button class="bottom-nav-btn" onclick="toggleTheme()">
-      <span class="nav-icon" id="theme-icon">🌙</span>
-      <span class="nav-label" id="theme-label">Dark</span>
-    </button>
-    <button class="bottom-nav-btn" onclick="showAbout()">
-      <span class="nav-icon">ℹ️</span>
-      <span class="nav-label">About</span>
-    </button>
-  </nav>
 
   <!-- History Modal -->
   <div class="modal" id="history-modal">
@@ -335,14 +261,13 @@
       <p>Create personalized messages for birthdays, anniversaries, and achievements. Share them with your loved ones through beautiful, shareable links.</p>
       <p class="modal-features">
         <strong>Features:</strong><br>
-        ✨ Editable message templates<br>
-        🎨 Customizable colors & fonts<br>
-        🎤 Voice note recording<br>
-        📱 QR code generation<br>
-        💬 WhatsApp & Telegram sharing<br>
+        ✨ Editable messages<br>
+        🎨 Custom colors & fonts<br>
+        🎤 Voice recording<br>
+        📱 QR codes<br>
+        💬 Social sharing<br>
         📜 Message history<br>
-        🌙 Dark/Light themes<br>
-        📲 Mobile-friendly design
+        🌙 Dark mode
       </p>
       <button class="modal-btn" onclick="closeAbout()">Got it!</button>
     </div>
@@ -351,3 +276,4 @@
   <script src="script.js"></script>
 </body>
 </html>
+
